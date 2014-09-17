@@ -15,30 +15,24 @@ ammount = nil
 # Main process
 File.readlines(fopen).each do |line|
 
-  action = line.split(" ")
+  action = line.split
 
   act = action[0]
+  name = action[1]
   if act == "Add"
-    name = action[1]
     cc = action[2]
-    limit = action[3][1..-1].to_i
+    limit = action[3][1..-1].to_i #removes '$' sign
   else
-    name = action[1]
     ammount = action[2][1..-1].to_i
   end
 
   case act
 
     when "Add"
-      if instance[:"#{name}"]
-        puts "#{name}'s record already exists. Add a unique record or use any of the 'Charge, Credit' actions instead"
+      if Luhn.valid? cc
+        instance[:"#{name}"] = CreditCard.new(limit) #CreditCard.new(limit, name, cc) if we needed in the class
       else
-        if Luhn.valid? cc
-          instance[:"#{name}"] = CreditCard.new(limit) #CreditCard.new(limit, name, cc) if we need them in the class
-          balances[:"#{name}"] = instance[:"#{name}"].balance
-        else
-          instance[:"#{name}"] = "error"
-        end
+        instance[:"#{name}"] = "error"
       end
 
     when "Charge"
@@ -57,12 +51,9 @@ File.readlines(fopen).each do |line|
 
 end
 
+#Output
 instance.sort.map do |key, v|
-  if v != "error"
-    puts "#{key}: $#{v.balance}"
-  else
-    puts "#{key}: error"
-  end
+  puts defined?(v.balance) ? "#{key}: $#{v.balance}" : "#{key}: #{v}"
 end
 
 
